@@ -4,6 +4,10 @@ import {
 	fetchCountryByName,
 	renderHTML,
 	fetchCountryByRegion,
+	debounce,
+	showLoading,
+	showError,
+	fetchCountryByCode
 } from "./utils/utils.js";
 
 import {
@@ -14,10 +18,13 @@ import {
 	saveTheme,
 } from "./utils/theme.js";
 
+import { closeModal, renderModal } from "./utils/modal.js";
+
 export const elements = {
 	SEARCH_INPUT: document.getElementById("searchInput"),
 	REGION_SELECT: document.getElementById("regionSelect"),
-	TOOGLE_THEME: document.getElementById("toggleTheme"),
+	TOGGLE_THEME: document.getElementById("toggleTheme"),
+	COUNTRIES_CONTAINER: document.getElementById("countriesContainer"),
 };
 
 // When the DOM is fully loaded
@@ -27,45 +34,100 @@ document.addEventListener("DOMContentLoaded", async function () {
 		loadSavedTheme();
 		updateToggleUI();
 
-		// It just renders 8 countries
-		fetchCountries().then(function (countries) {
+		// Initially load limited countries for better performance
+		showLoading();
+		try {
+			const countries = await fetchCountries(undefined, 8);
 			renderHTML(countries);
-		});
+		} catch (error) {
+			showError("Failed to load countries. Please try again later.");
+		}
 	} catch (error) {
 		console.error("Error in DOMContentLoaded:", error.message);
 	}
 });
 
-elements.SEARCH_INPUT.addEventListener("input", async function (event) {
-	if (!event.target.value) {
-		fetchCountries().then(function (countries) {
+const debouncedSearch = debounce(async function (query) {
+	try {
+		if (!query.trim()) {
+			showLoading();
+			const countries = await fetchCountries(undefined, 8);
 			renderHTML(countries);
-		});
+			return;
+		}
 
-		return;
-	}
-
-	fetchCountryByName(event.target.value).then(function (country) {
+		showLoading();
+		const country = await fetchCountryByName(query);
 		renderHTML(country);
-	});
+	} catch (error) {
+		showError("Failed to search countries. Please try again.");
+	}
+}, 300);
+
+elements.SEARCH_INPUT.addEventListener("input", function (event) {
+	debouncedSearch(event.target.value);
 });
 
 elements.REGION_SELECT.addEventListener("change", async function (event) {
 	const selectedRegion = event.target.value;
+	showLoading();
 
-	return selectedRegion === ""
-		? fetchCountries().then(function (countries) {
-				renderHTML(countries);
-		  })
-		: fetchCountryByRegion(selectedRegion).then(function (countriesByRegion) {
-				renderHTML(countriesByRegion);
-		  });
+	try {
+		if (selectedRegion === "") {
+			const countries = await fetchCountries(undefined, 8);
+			renderHTML(countries);
+		} else {
+			const countriesByRegion = await fetchCountryByRegion(selectedRegion);
+			renderHTML(countriesByRegion);
+		}
+	} catch (error) {
+		showError("Failed to filter countries. Please try again.");
+	}
 });
 
-elements.TOOGLE_THEME.addEventListener("click", function () {
+elements.TOGGLE_THEME.addEventListener("click", function () {
 	const current = getEffectiveTheme();
 	const next = current === "dark" ? "light" : "dark";
 	applyTheme(next);
 	saveTheme(next);
 	updateToggleUI();
 });
+
+// Event delegation for country clicks
+elements.COUNTRIES_CONTAINER.addEventListener("click", function (event) {
+	const countryCard = event.target.closest(".country");
+	if (!countryCard) return;
+	
+	const countryCode = countryCard.dataset.countryCode;
+	if (!countryCode) {
+		console.warn("Country code not found");
+		return;
+	}
+	
+	handleCountryClick(countryCode);
+});
+
+// Event delegation for modal close
+document.addEventListener("click", function (event) {
+	if (event.target.id === "closeModal" || event.target.id === "modal") {
+		closeModal();
+	}
+});
+
+// TODO(human): Implement this function
+function handleCountryClick(countryCode) {
+	console.log("Country clicked:", countryCode);
+	// This is where you'll implement the detailed country view
+
+	fetchCountryByCode(countryCode).then(function(country) {
+		if (!country || country.status) {
+			showError("Failed to load country details. Please try again.");
+			return;
+		}
+		console.log("Country details:", country);
+		// Implement modal or detail view rendering here
+		renderModal(country[0]);
+	}).catch(function(error) {
+		showError("Failed to load country details. Please try again.", error);
+	});
+}

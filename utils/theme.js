@@ -1,5 +1,3 @@
-import { elements } from "../app.js";
-
 const ICONS = {
 	SUN: "./icons/sun-solid-full.svg",
 	MOON: "./icons/moon-solid-full.svg",
@@ -25,9 +23,21 @@ export function getEffectiveTheme() {
 
 export function updateToggleUI() {
 	const current = getEffectiveTheme();
-	const btn = elements.TOOGLE_THEME;
+	const btn = document.getElementById("toggleTheme");
+	
+	if (!btn) {
+		console.error("Toggle theme button not found");
+		return;
+	}
+	
 	const icon = btn.querySelector("img.icon");
 	const label = btn.querySelector("span");
+	
+	if (!icon || !label) {
+		console.error("Toggle theme button elements not found");
+		return;
+	}
+	
 	if (current === "dark") {
 		// Show option to switch to light
 		icon.src = ICONS.SUN;
