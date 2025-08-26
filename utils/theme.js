@@ -1,8 +1,8 @@
 import { elements } from "../app.js";
 
 const ICONS = {
-	SUN: "../icons/sun-solid-full.svg",
-	MOON: "../icons/moon-solid-full.svg",
+	SUN: "./icons/sun-solid-full.svg",
+	MOON: "./icons/moon-solid-full.svg",
 };
 
 export function applyTheme(theme) {
