@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 	}
 });
 
+// Increase performance
 const debouncedSearch = debounce(async function (query) {
 	try {
 		if (!query.trim()) {
@@ -99,10 +100,7 @@ elements.COUNTRIES_CONTAINER.addEventListener("click", function (event) {
 	if (!countryCard) return;
 	
 	const countryCode = countryCard.dataset.countryCode;
-	if (!countryCode) {
-		console.warn("Country code not found");
-		return;
-	}
+	if (!countryCode) return;
 	
 	handleCountryClick(countryCode);
 });
@@ -116,7 +114,6 @@ document.addEventListener("click", function (event) {
 
 // TODO(human): Implement this function
 function handleCountryClick(countryCode) {
-	console.log("Country clicked:", countryCode);
 	// This is where you'll implement the detailed country view
 
 	fetchCountryByCode(countryCode).then(function(country) {
@@ -124,7 +121,7 @@ function handleCountryClick(countryCode) {
 			showError("Failed to load country details. Please try again.");
 			return;
 		}
-		console.log("Country details:", country);
+		
 		// Implement modal or detail view rendering here
 		renderModal(country[0]);
 	}).catch(function(error) {
