@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>REST Countries</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="/style.css" />
+	</head>
+	<body>
+		<header>
+			<div class="container" id="headerContent">
+				<h1>Where is the world?</h1>
+				<button id="toggleTheme">
+					<img class="icon" src="/icons/moon-solid-full.svg" alt="" />
+					<span>Dark Mode</span>
+				</button>
+			</div>
+		</header>
+
+		<main class="container">
+			<section id="controls">
+				<div class="search-box">
+					<img
+						class="icon"
+						src="/icons/magnifying-glass-solid-full.svg"
+						alt="Search"
+					/>
+					<input
+						type="text"
+						id="searchInput"
+						placeholder="Search for a country..."
+					/>
+				</div>
+				<select id="regionSelect">
+					<option value="">Filter by region</option>
+					<option value="africa">Africa</option>
+					<option value="america">America</option>
+					<option value="asia">Asia</option>
+					<option value="europe">Europe</option>
+					<option value="oceania">Oceania</option>
+				</select>
+			</section>
+
+			<section id="countriesContainer">
+				<!-- Countries will be dynamically inserted here -->
+			</section>
+		</main>
+
+		<script type="module" src="/app.js"></script>
+	</body>
+</html>
